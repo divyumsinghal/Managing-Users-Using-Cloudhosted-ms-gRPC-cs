@@ -1,14 +1,11 @@
-using ClientService.Services;
+﻿using Grpc.Net.Client;
+using ClientService;
 
-var builder = WebApplication.CreateBuilder(args);
-
-// Add services to the container.
-builder.Services.AddGrpc();
-
-var app = builder.Build();
-
-// Configure the HTTP request pipeline.
-app.MapGrpcService<GreeterService>();
-app.MapGet("/", () => "Communication with gRPC endpoints must be made through a gRPC client. To learn how to create a client, visit: https://go.microsoft.com/fwlink/?linkid=2086909");
-
-app.Run();
+// The port number must match the port of the gRPC server.
+using var channel = GrpcChannel.ForAddress("https://localhost:7169");
+var client = new Greeter.GreeterClient(channel);
+var reply = await client.SayHelloAsync(
+    new HelloRequest { Name = "GreeterClient" });
+Console.WriteLine("Greeting: " + reply.Message);
+Console.WriteLine("Press any key to exit...");
+Console.ReadKey();
